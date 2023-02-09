@@ -1,5 +1,6 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.exceptions.ResourceNotFoundException;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,8 @@ public class UserService {
     }
 
     public User findByUserId(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+        return userRepository.findById(userId).orElseThrow(() ->
+                new ResourceNotFoundException("Not found User with id: " + userId));
     }
 
     public boolean saveUser(User userForSave) {
@@ -29,10 +31,12 @@ public class UserService {
             return true;
         }
 
-        return false;
+        throw new ResourceNotFoundException("User with username: " + userForSave.getUsername() + " already exists");
     }
 
     public void deleteById(Long userId) {
-        userRepository.deleteById(userId);
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new ResourceNotFoundException("Not found User with id: " + userId));
+        userRepository.delete(user);
     }
 }
