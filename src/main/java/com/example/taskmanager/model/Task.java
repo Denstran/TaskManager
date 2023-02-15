@@ -1,7 +1,10 @@
 package com.example.taskmanager.model;
 
 import com.example.taskmanager.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +21,8 @@ public class Task {
     private Long id;
 
     @Column(name = "task")
+    @NotBlank(message = "Task text must not be blank")
+    @Size(max = 255, message = "Task text must not me greater then 255 characters.")
     private String task;
 
     @Enumerated(EnumType.STRING)
@@ -27,6 +32,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "usr_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @Override

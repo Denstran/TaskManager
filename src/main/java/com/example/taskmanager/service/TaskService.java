@@ -26,6 +26,21 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    public Task updateTask(Task task, Long taskId) {
+        Task _task = taskRepository.findById(taskId).orElseThrow(() ->
+                new ResourceNotFoundException("Not found task with id: " + taskId));
+
+        if (task.getStatus() != null) {
+            _task.setStatus(task.getStatus());
+        }
+
+        System.out.println(task.getTask());
+        if (task.getTask() != null) {
+            _task.setTask(task.getTask());
+        }
+        return taskRepository.save(_task);
+    }
+
     public List<Task> getTasks(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new ResourceNotFoundException("Not found user with id: " + userId));

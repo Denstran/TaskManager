@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class UserController {
     private final UserService userService;
 
@@ -20,7 +20,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
+    @PostMapping("/users/register")
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
         User _user = userService.saveUser(user);
 
@@ -32,18 +32,24 @@ public class UserController {
         return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/users/update")
     public ResponseEntity<User> update(@Valid @RequestBody User user, @RequestParam(value = "usrId") Long usrId) {
         User userResult = userService.updateUser(user, usrId);
 
         return new ResponseEntity<>(userResult, HttpStatus.OK);
     }
 
-    @GetMapping("/user")
+    @GetMapping("/users/user")
     public ResponseEntity<User> getOneUser(@RequestParam(value = "usrId") Long usrId) {
         User user = userService.findByUserId(usrId);
 
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @DeleteMapping("/users/deleteUser")
+    public ResponseEntity<String> deleteUser(@RequestParam(value = "usrId") Long usrId) {
+        userService.deleteById(usrId);
+
+        return new ResponseEntity<>("User was deleted", HttpStatus.NO_CONTENT);
+    }
 }
