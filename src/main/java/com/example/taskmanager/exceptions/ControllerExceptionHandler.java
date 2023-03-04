@@ -53,7 +53,7 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(Exception.class)
+    /*@ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> globalExceptionHandler(Exception ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -63,5 +63,5 @@ public class ControllerExceptionHandler {
         );
 
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    }*/
 }

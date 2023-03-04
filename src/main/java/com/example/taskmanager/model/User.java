@@ -3,15 +3,22 @@ package com.example.taskmanager.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "usr")
+@Table(name = "usr",
+       uniqueConstraints = {
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "mail")
+       })
 @Getter
 @Setter
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,12 +35,25 @@ public class User {
     private String password;
 
     @Column(name = "mail")
+    @Size(max = 50)
     @NotBlank(message = "Email is mandatory")
     @Email
     private String mail;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Task> tasks;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+               joinColumns = @JoinColumn(name = "usr_id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
+    public User(String username, String password, String mail) {
+        this.username = username;
+        this.password = password;
+        this.mail = mail;
+    }
 
     @Override
     public boolean equals(Object o) {

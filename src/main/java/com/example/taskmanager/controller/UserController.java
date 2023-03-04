@@ -1,11 +1,13 @@
 package com.example.taskmanager.controller;
 
 import com.example.taskmanager.model.User;
+import com.example.taskmanager.payload.request.SignupRequest;
 import com.example.taskmanager.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,13 +20,6 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    @PostMapping("/users/register")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
-        User _user = userService.saveUser(user);
-
-        return new ResponseEntity<>(_user, HttpStatus.CREATED);
     }
 
     @GetMapping
