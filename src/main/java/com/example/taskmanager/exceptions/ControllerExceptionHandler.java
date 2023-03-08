@@ -16,6 +16,20 @@ import java.util.Map;
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorMessage> handleAuthenticationException(AuthenticationException e,
+                                                                      WebRequest request) {
+
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.FORBIDDEN.value(),
+                new Date(),
+                e.getMessage(),
+                request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(message, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException e) {
         Map<String, String> errors = new HashMap<>();
@@ -53,7 +67,7 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.CONFLICT);
     }
 
-    /*@ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> globalExceptionHandler(Exception ex, WebRequest request) {
         ErrorMessage message = new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -63,5 +77,5 @@ public class ControllerExceptionHandler {
         );
 
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }*/
+    }
 }

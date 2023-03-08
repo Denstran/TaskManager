@@ -1,5 +1,6 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.exceptions.AuthenticationException;
 import com.example.taskmanager.exceptions.ResourceAlreadyExistsException;
 import com.example.taskmanager.exceptions.ResourceNotFoundException;
 import com.example.taskmanager.model.ERole;
@@ -17,7 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,15 +45,13 @@ public class UserService {
         this.authenticationManager = authenticationManager;
     }
 
-    public User findByUserId(Long userId) {
+    public User findByUserId(Long userId, UserDetailsImpl authUser) {
+        if (userId != authUser.getId()){
+            throw new AuthenticationException("Access denied!");
+        }
+
         return userRepository.findById(userId).orElseThrow(() ->
                 new ResourceNotFoundException("Not found User with id: " + userId));
-    }
-
-    public User findByUsername(String username) {
-
-        return userRepository.findByUsername(username).orElseThrow(() ->
-                new UsernameNotFoundException("Not found User with username: " + username));
     }
 
     public List<User> findAll() {
@@ -81,7 +79,11 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public User updateUser(User userForUpdate, Long usrId) {
+    public User updateUser(User userForUpdate, Long usrId, UserDetailsImpl authUser) {
+        if (usrId != authUser.getId()){
+            throw new AuthenticationException("Access denied!");
+        }
+
         User _user = userRepository.findById(usrId).orElseThrow(() ->
                 new ResourceNotFoundException("Not found user with id: " + usrId));
 
@@ -121,7 +123,10 @@ public class UserService {
                 roles);
     }
 
-    public void deleteById(Long userId) {
+    public void deleteById(Long userId, UserDetailsImpl authUser) {
+        if (userId != authUser.getId()){
+            throw new AuthenticationException("Access denied!");
+        }
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new ResourceNotFoundException("Not found User with id: " + userId));
         userRepository.delete(user);

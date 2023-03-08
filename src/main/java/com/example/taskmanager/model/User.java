@@ -1,5 +1,6 @@
 package com.example.taskmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -47,6 +48,7 @@ public class User {
     @JoinTable(name = "user_roles",
                joinColumns = @JoinColumn(name = "usr_id"),
                inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JsonIgnore
     private Set<Role> roles = new HashSet<>();
 
     public User(String username, String password, String mail) {
