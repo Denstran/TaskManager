@@ -6,7 +6,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Date;
@@ -15,6 +14,19 @@ import java.util.Map;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
+
+    @ExceptionHandler(TokenRefreshException.class)
+    public ResponseEntity<ErrorMessage> handleTokenRefreshException(TokenRefreshException e, WebRequest request) {
+
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.FORBIDDEN.value(),
+                new Date(),
+                e.getMessage(),
+                request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(message, HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorMessage> handleAuthenticationException(AuthenticationException e,

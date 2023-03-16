@@ -4,6 +4,7 @@ import com.example.taskmanager.exceptions.AuthenticationException;
 import com.example.taskmanager.exceptions.ResourceAlreadyExistsException;
 import com.example.taskmanager.exceptions.ResourceNotFoundException;
 import com.example.taskmanager.model.ERole;
+import com.example.taskmanager.model.RefreshToken;
 import com.example.taskmanager.model.Role;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.payload.request.LoginRequest;
@@ -30,16 +31,18 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RefreshTokenService refreshTokenService;
 
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder,
-                       JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+                       RefreshTokenService refreshTokenService, PasswordEncoder encoder, JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.refreshTokenService = refreshTokenService;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
@@ -107,16 +110,20 @@ public class UserService {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        String jwt = jwtUtils.generateJwtToken(userDetails);
+
+
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+
         return new JwtResponse(jwt,
+                refreshToken.getToken(),
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getMail(),
