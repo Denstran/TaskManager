@@ -15,6 +15,9 @@ import com.example.taskmanager.repository.UserRepository;
 import com.example.taskmanager.service.security.jwt.JwtUtils;
 import com.example.taskmanager.service.security.securityservice.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,7 +26,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,8 +62,27 @@ public class UserService {
                 new ResourceNotFoundException("Not found User with id: " + userId));
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public Map<String, Object> findAll(int page, int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException("Page must not be lower then 0!");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Page size must be greater then 0!");
+        }
+
+        List<User> users;
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<User> pageUsr = userRepository.findAll(paging);
+
+        users = pageUsr.getContent();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("Users:", users);
+        response.put("Current page:", pageUsr.getNumber());
+        response.put("Total pages:", pageUsr.getTotalPages());
+
+        return response;
     }
 
     public void saveUser(SignupRequest signupRequest) {
