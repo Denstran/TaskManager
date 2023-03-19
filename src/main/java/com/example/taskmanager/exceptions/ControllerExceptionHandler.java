@@ -8,12 +8,23 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorMessage> handleIllegalArgumentException(IllegalArgumentException e, WebRequest request) {
+
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                e.getMessage(),
+                request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<ErrorMessage> handleTokenRefreshException(TokenRefreshException e, WebRequest request) {

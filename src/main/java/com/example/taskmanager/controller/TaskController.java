@@ -1,5 +1,6 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.model.Status;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.service.TaskService;
@@ -12,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -45,11 +46,14 @@ public class TaskController {
     }
 
     @GetMapping("/users/user/tasks")
-    public ResponseEntity<List<Task>> getUserTasks(@RequestParam(value = "usrId") Long usrId,
-                                                   @AuthenticationPrincipal UserDetailsImpl authUser) {
-        List<Task> tasks = taskService.getTasks(usrId, authUser);
+    public ResponseEntity<Map<String, Object>> getUserTasks(@RequestParam(value = "usrId") Long usrId,
+                                                   @AuthenticationPrincipal UserDetailsImpl authUser,
+                                                   @RequestParam(defaultValue = "0", value = "page") int page,
+                                                   @RequestParam(defaultValue = "3", value = "size") int size,
+                                                   @RequestParam(required = false, value = "status") Status status) {
+        Map<String, Object> response = taskService.getTasks(usrId, authUser, page, size, status);
 
-        return new ResponseEntity<>(tasks, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/users/user/tasks/task")
