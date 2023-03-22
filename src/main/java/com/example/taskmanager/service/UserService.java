@@ -3,13 +3,11 @@ package com.example.taskmanager.service;
 import com.example.taskmanager.exceptions.AuthenticationException;
 import com.example.taskmanager.exceptions.ResourceAlreadyExistsException;
 import com.example.taskmanager.exceptions.ResourceNotFoundException;
-import com.example.taskmanager.model.ERole;
-import com.example.taskmanager.model.RefreshToken;
-import com.example.taskmanager.model.Role;
-import com.example.taskmanager.model.User;
+import com.example.taskmanager.model.*;
 import com.example.taskmanager.payload.request.LoginRequest;
 import com.example.taskmanager.payload.request.SignupRequest;
 import com.example.taskmanager.payload.response.JwtResponse;
+import com.example.taskmanager.payload.response.StatisticResponse;
 import com.example.taskmanager.repository.RoleRepository;
 import com.example.taskmanager.repository.UserRepository;
 import com.example.taskmanager.service.security.jwt.JwtUtils;
@@ -26,10 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,6 +55,32 @@ public class UserService {
 
         return userRepository.findById(userId).orElseThrow(() ->
                 new ResourceNotFoundException("Not found User with id: " + userId));
+    }
+
+    public StatisticResponse getUserStatistic(UserDetailsImpl authUser) {
+        User user = userRepository.findById(authUser.getId()).orElseThrow(() ->
+                new ResourceNotFoundException("Not found user with id: " + authUser.getId()));
+
+        Set<Task> tasks = user.getTasks();
+
+        long totalTasks = tasks.size();
+
+        long amountOfFinishedTasks = 0;
+        long amountOfPostponedTasks = 0;
+        long amountOfInProgressTasks = 0;
+
+        for (Task task : tasks){
+            switch (task.getStatus()) {
+                case FINISHED -> amountOfFinishedTasks++;
+                case POSTPONED -> amountOfPostponedTasks++;
+                case IN_PROGRESS -> amountOfInProgressTasks++;
+            }
+        }
+
+        StatisticResponse response = new StatisticResponse(amountOfFinishedTasks, amountOfPostponedTasks,
+                amountOfInProgressTasks, totalTasks);
+
+        return response;
     }
 
     public Map<String, Object> findAll(int page, int size) {

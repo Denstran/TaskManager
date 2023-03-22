@@ -1,6 +1,7 @@
 package com.example.taskmanager.controller;
 
 import com.example.taskmanager.model.User;
+import com.example.taskmanager.payload.response.StatisticResponse;
 import com.example.taskmanager.service.UserService;
 import com.example.taskmanager.service.security.securityservice.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -27,6 +28,12 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> getAll(@RequestParam(defaultValue = "0") int page,
                                                 @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(userService.findAll(page, size), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/user/getStatistic")
+    public ResponseEntity<StatisticResponse> getUserStatistic(@AuthenticationPrincipal UserDetailsImpl authUser) {
+
+        return new ResponseEntity<>(userService.getUserStatistic(authUser), HttpStatus.OK);
     }
 
     @PutMapping("/users/update")
