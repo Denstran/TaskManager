@@ -98,7 +98,7 @@ public class ControllerExceptionHandler {
                 ex.getMessage(),
                 request.getDescription(false)
         );
-
+        System.out.println(Arrays.toString(ex.getStackTrace()));
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -11,9 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -22,12 +19,6 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    @GetMapping
-    public ResponseEntity<Map<String, Object>> getAll(@RequestParam(defaultValue = "0") int page,
-                                                @RequestParam(defaultValue = "10") int size) {
-        return new ResponseEntity<>(userService.findAll(page, size), HttpStatus.OK);
     }
 
     @GetMapping("/users/user/getStatistic")

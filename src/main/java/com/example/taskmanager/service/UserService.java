@@ -159,13 +159,17 @@ public class UserService {
 
         String jwt = jwtUtils.generateJwtToken(userDetails);
 
-
-
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+        RefreshToken refreshToken = userRepository.findById(userDetails.getId()).orElseThrow(() ->
+                new ResourceNotFoundException("Not found user with id: " + userDetails.getId())).getRefreshToken();
+        if (refreshToken != null) {
+            refreshTokenService.deleteByUserId(userDetails.getId());
+        }
+        refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+
 
         return new JwtResponse(jwt,
                 refreshToken.getToken(),
@@ -176,8 +180,10 @@ public class UserService {
     }
 
     public void deleteById(Long userId, UserDetailsImpl authUser) {
-        if (userId != authUser.getId()){
-            throw new AuthenticationException("Access denied!");
+        if (userId != authUser.getId()) {
+            if (!authUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                throw new AuthenticationException("Access denied!");
+            }
         }
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new ResourceNotFoundException("Not found User with id: " + userId));

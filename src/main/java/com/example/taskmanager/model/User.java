@@ -33,6 +33,7 @@ public class User {
     @Column(name = "password")
     @NotBlank(message = "Password is mandatory")
     @Size(min = 5, message = "Password must be at least 5 characters")
+    @JsonIgnore
     private String password;
 
     @Column(name = "mail")
@@ -41,7 +42,11 @@ public class User {
     @Email
     private String mail;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private RefreshToken refreshToken;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Task> tasks;
 
     @ManyToMany(fetch = FetchType.EAGER)
